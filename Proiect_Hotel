@@ -1,0 +1,189 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+// ======================= CLASA CAMERA =======================
+class Camera {
+public:
+    // atribute normale
+    int numar;
+    double pretPeNoapte;
+    char* tip; // pointer alocat in HEAP
+
+    // atribut static
+    static int totalCamere;
+
+    // atribut constant
+    const int etaj;
+
+    // Constructori
+    Camera() : etaj(0) {
+        numar = 0;
+        pretPeNoapte = 0;
+        tip = new char[10];
+        strcpy(tip, "Necunoscut");
+        totalCamere++;
+    }
+
+    Camera(int n, double p, const char* t, int e) : etaj(e) {
+        numar = n;
+        pretPeNoapte = p;
+        tip = new char[strlen(t) + 1];
+        strcpy(tip, t);
+        totalCamere++;
+    }
+
+    Camera(int n) : etaj(1) {
+        numar = n;
+        pretPeNoapte = 100;
+        tip = new char[10];
+        strcpy(tip, "Standard");
+        totalCamere++;
+    }
+
+    // Destructor
+    ~Camera() {
+        delete[] tip;
+    }
+
+    // Functie statica
+    static void afisTotalCamere() {
+        cout << "Total camere: " << totalCamere << endl;
+    }
+
+    // Afisare
+    void afis() {
+        cout << "Camera " << numar << ", Pret: " << pretPeNoapte
+             << ", Tip: " << tip << ", Etaj: " << etaj << endl;
+    }
+};
+
+int Camera::totalCamere = 0;
+
+// ======================= CLASA PERSONAL =======================
+class Personal {
+public:
+    char* nume; // pointer in HEAP
+    int varsta;
+    const char functie[20]; // atribut constant
+    static int totalPersonal;
+
+    // Constructori
+    Personal() : varsta(18), functie("Necunoscut") {
+        nume = new char[10];
+        strcpy(nume, "Anonim");
+        totalPersonal++;
+    }
+
+    Personal(const char* n, int v, const char* f) : varsta(v), functie("") {
+        nume = new char[strlen(n) + 1];
+        strcpy(nume, n);
+        strncpy(const_cast<char*>(functie), f, 19);
+        const_cast<char*>(functie)[19] = '\0';
+        totalPersonal++;
+    }
+
+    Personal(const char* n) : varsta(25), functie("Angajat") {
+        nume = new char[strlen(n) + 1];
+        strcpy(nume, n);
+        totalPersonal++;
+    }
+
+    ~Personal() {
+        delete[] nume;
+    }
+
+    static void afisTotalPersonal() {
+        cout << "Total personal: " << totalPersonal << endl;
+    }
+
+    void afis() {
+        cout << "Nume: " << nume << ", Varsta: " << varsta
+             << ", Functie: " << functie << endl;
+    }
+};
+
+int Personal::totalPersonal = 0;
+
+// ======================= CLASA REZERVARE =======================
+class Rezervare {
+public:
+    int nrZile;
+    char* numeClient; // pointer in HEAP
+    const double avans; // constant
+    static int totalRezervari;
+
+    // Constructori
+    Rezervare() : avans(0) {
+        nrZile = 1;
+        numeClient = new char[10];
+        strcpy(numeClient, "Anonim");
+        totalRezervari++;
+    }
+
+    Rezervare(int n, const char* c, double a) : nrZile(n), avans(a) {
+        numeClient = new char[strlen(c) + 1];
+        strcpy(numeClient, c);
+        totalRezervari++;
+    }
+
+    Rezervare(const char* c) : nrZile(2), avans(50) {
+        numeClient = new char[strlen(c) + 1];
+        strcpy(numeClient, c);
+        totalRezervari++;
+    }
+
+    ~Rezervare() {
+        delete[] numeClient;
+    }
+
+    static void afisTotalRezervari() {
+        cout << "Total rezervari: " << totalRezervari << endl;
+    }
+
+    void afis() {
+        cout << "Client: " << numeClient << ", Nr. zile: " << nrZile
+             << ", Avans: " << avans << endl;
+    }
+};
+
+int Rezervare::totalRezervari = 0;
+
+// ======================= FUNCTIA MAIN =======================
+int main() {
+    // Camera
+    Camera c1;
+    Camera c2(101, 250.5, "Deluxe", 2);
+    Camera c3(102);
+
+    c1.afis();
+    c2.afis();
+    c3.afis();
+    Camera::afisTotalCamere();
+
+    cout << "---------------------" << endl;
+
+    // Personal
+    Personal p1;
+    Personal p2("Ion Popescu", 30, "Receptioner");
+    Personal p3("Maria");
+
+    p1.afis();
+    p2.afis();
+    p3.afis();
+    Personal::afisTotalPersonal();
+
+    cout << "---------------------" << endl;
+
+    // Rezervare
+    Rezervare r1;
+    Rezervare r2(5, "Andrei Ionescu", 300);
+    Rezervare r3("Elena");
+
+    r1.afis();
+    r2.afis();
+    r3.afis();
+    Rezervare::afisTotalRezervari();
+
+    return 0;
+}
