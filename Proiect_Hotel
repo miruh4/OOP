@@ -2,188 +2,239 @@
 #include <cstring>
 using namespace std;
 
-// ======================= CLASA CAMERA =======================
+// ========================= CLASA CAMERA =========================
 class Camera {
-public:
-    // atribute normale
+private:
     int numar;
-    double pretPeNoapte;
-    char* tip; // pointer alocat in HEAP
-
-    // atribut static
+    float pretNoapte;
+    char* tip;
+    const int etaj;
     static int totalCamere;
 
-    // atribut constant
-    const int etaj;
-
+public:
     // Constructori
-    Camera() : etaj(0) {
+    Camera() : etaj(1) {
         numar = 0;
-        pretPeNoapte = 0;
-        tip = new char[10];
-        strcpy(tip, "Necunoscut");
+        pretNoapte = 0;
+        tip = new char[strlen("Standard") + 1];
+        strcpy(tip, "Standard");
         totalCamere++;
     }
 
-    Camera(int n, double p, const char* t, int e) : etaj(e) {
+    Camera(int n, float p, const char* t, int e) : etaj(e) {
         numar = n;
-        pretPeNoapte = p;
+        pretNoapte = p;
         tip = new char[strlen(t) + 1];
         strcpy(tip, t);
         totalCamere++;
     }
 
-    Camera(int n) : etaj(1) {
-        numar = n;
-        pretPeNoapte = 100;
-        tip = new char[10];
-        strcpy(tip, "Standard");
-        totalCamere++;
+    Camera(const Camera& c) : etaj(c.etaj) {
+        numar = c.numar;
+        pretNoapte = c.pretNoapte;
+        tip = new char[strlen(c.tip) + 1];
+        strcpy(tip, c.tip);
     }
 
-    // Destructor
     ~Camera() {
         delete[] tip;
     }
 
-    // Functie statica
-    static void afisTotalCamere() {
-        cout << "Total camere: " << totalCamere << endl;
+    // Getteri și setteri
+    int getNumar() const { return numar; }
+    float getPret() const { return pretNoapte; }
+    const char* getTip() const { return tip; }
+    int getEtaj() const { return etaj; }
+
+    void setNumar(int n) { numar = n; }
+    void setPret(float p) { pretNoapte = p; }
+    void setTip(const char* t) {
+        delete[] tip;
+        tip = new char[strlen(t) + 1];
+        strcpy(tip, t);
     }
 
-    // Afisare
-    void afis() {
-        cout << "Camera " << numar << ", Pret: " << pretPeNoapte
-             << ", Tip: " << tip << ", Etaj: " << etaj << endl;
+    // Funcție statică pentru atribut static
+    static int getTotalCamere() { return totalCamere; }
+
+    void afisare() const {
+        cout << "Camera " << numar << ", tip: " << tip << ", pret: "
+             << pretNoapte << " lei/noapte, etaj: " << etaj << endl;
     }
+
+    // Declarăm funcțiile prietene
+    friend void afisarePretSiVarsta(Camera c, class Personal p);
+    friend float calculValoareTotala(Camera c, class Rezervare r);
 };
-
 int Camera::totalCamere = 0;
 
-// ======================= CLASA PERSONAL =======================
+
+// ========================= CLASA PERSONAL =========================
 class Personal {
-public:
-    char* nume; // pointer in HEAP
+private:
+    char* nume;
     int varsta;
-    const char functie[20]; // atribut constant
+    const char functie[20];
     static int totalPersonal;
 
+public:
     // Constructori
-    Personal() : varsta(18), functie("Necunoscut") {
-        nume = new char[10];
+    Personal() : functie("Necunoscut") {
+        nume = new char[strlen("Anonim") + 1];
         strcpy(nume, "Anonim");
+        varsta = 0;
         totalPersonal++;
     }
 
-    Personal(const char* n, int v, const char* f) : varsta(v), functie("") {
+    Personal(const char* n, int v, const char* f) : functie("") {
         nume = new char[strlen(n) + 1];
         strcpy(nume, n);
-        strncpy(const_cast<char*>(functie), f, 19);
-        const_cast<char*>(functie)[19] = '\0';
+        varsta = v;
+        strcpy((char*)functie, f);
         totalPersonal++;
     }
 
-    Personal(const char* n) : varsta(25), functie("Angajat") {
-        nume = new char[strlen(n) + 1];
-        strcpy(nume, n);
-        totalPersonal++;
+    Personal(const Personal& p) : functie("") {
+        nume = new char[strlen(p.nume) + 1];
+        strcpy(nume, p.nume);
+        varsta = p.varsta;
+        strcpy((char*)functie, p.functie);
     }
 
     ~Personal() {
         delete[] nume;
     }
 
-    static void afisTotalPersonal() {
-        cout << "Total personal: " << totalPersonal << endl;
+    // Getteri și setteri
+    const char* getNume() const { return nume; }
+    int getVarsta() const { return varsta; }
+    const char* getFunctie() const { return functie; }
+
+    void setNume(const char* n) {
+        delete[] nume;
+        nume = new char[strlen(n) + 1];
+        strcpy(nume, n);
+    }
+    void setVarsta(int v) { varsta = v; }
+
+    // Funcție statică
+    static int getTotalPersonal() { return totalPersonal; }
+
+    void afisare() const {
+        cout << "Angajat: " << nume << ", varsta: " << varsta
+             << ", functie: " << functie << endl;
     }
 
-    void afis() {
-        cout << "Nume: " << nume << ", Varsta: " << varsta
-             << ", Functie: " << functie << endl;
-    }
+    // Prietene
+    friend void afisarePretSiVarsta(Camera c, Personal p);
 };
-
 int Personal::totalPersonal = 0;
 
-// ======================= CLASA REZERVARE =======================
+
+// ========================= CLASA REZERVARE =========================
 class Rezervare {
-public:
+private:
     int nrZile;
-    char* numeClient; // pointer in HEAP
-    const double avans; // constant
+    char* numeClient;
+    const float avans;
     static int totalRezervari;
 
+public:
     // Constructori
     Rezervare() : avans(0) {
-        nrZile = 1;
-        numeClient = new char[10];
+        nrZile = 0;
+        numeClient = new char[strlen("Anonim") + 1];
         strcpy(numeClient, "Anonim");
         totalRezervari++;
     }
 
-    Rezervare(int n, const char* c, double a) : nrZile(n), avans(a) {
-        numeClient = new char[strlen(c) + 1];
-        strcpy(numeClient, c);
+    Rezervare(const char* n, int zile, float a) : avans(a) {
+        numeClient = new char[strlen(n) + 1];
+        strcpy(numeClient, n);
+        nrZile = zile;
         totalRezervari++;
     }
 
-    Rezervare(const char* c) : nrZile(2), avans(50) {
-        numeClient = new char[strlen(c) + 1];
-        strcpy(numeClient, c);
-        totalRezervari++;
+    Rezervare(const Rezervare& r) : avans(r.avans) {
+        nrZile = r.nrZile;
+        numeClient = new char[strlen(r.numeClient) + 1];
+        strcpy(numeClient, r.numeClient);
     }
 
     ~Rezervare() {
         delete[] numeClient;
     }
 
-    static void afisTotalRezervari() {
-        cout << "Total rezervari: " << totalRezervari << endl;
+    // Get/set
+    int getZile() const { return nrZile; }
+    const char* getClient() const { return numeClient; }
+    float getAvans() const { return avans; }
+
+    void setZile(int z) { nrZile = z; }
+    void setClient(const char* n) {
+        delete[] numeClient;
+        numeClient = new char[strlen(n) + 1];
+        strcpy(numeClient, n);
     }
 
-    void afis() {
-        cout << "Client: " << numeClient << ", Nr. zile: " << nrZile
-             << ", Avans: " << avans << endl;
+    // Funcție statică
+    static int getTotalRezervari() { return totalRezervari; }
+
+    void afisare() const {
+        cout << "Rezervare client " << numeClient << " pentru " << nrZile
+             << " zile, avans platit: " << avans << " lei" << endl;
     }
+
+    friend float calculValoareTotala(Camera c, Rezervare r);
 };
-
 int Rezervare::totalRezervari = 0;
 
-// ======================= FUNCTIA MAIN =======================
+
+// ========================= FUNCȚII GLOBALE PRIETENE =========================
+
+//Afișează prețul camerei și vârsta angajatului (folosește Camera și Personal)
+void afisarePretSiVarsta(Camera c, Personal p) {
+    cout << "\n[Prietena] Camera " << c.getNumar() << " are pretul "
+         << c.getPret() << " lei/noapte." << endl;
+    cout << "Angajatul " << p.getNume() << " are varsta de " << p.getVarsta() << " ani.\n";
+}
+
+//Calculează valoarea totală a unei rezervări în funcție de prețul camerei
+float calculValoareTotala(Camera c, Rezervare r) {
+    float total = c.getPret() * r.getZile() - r.getAvans();
+    cout << "\n[Prietena] Valoarea totală de plată pentru " << r.getClient()
+         << " este: " << total << " lei.\n";
+    return total;
+}
+
+
+// ========================= FUNCTIA MAIN =========================
 int main() {
-    // Camera
+
     Camera c1;
-    Camera c2(101, 250.5, "Deluxe", 2);
-    Camera c3(102);
+    Camera c2(101, 250.5, "Deluxe", 3);
+    Camera c3 = c2;
 
-    c1.afis();
-    c2.afis();
-    c3.afis();
-    Camera::afisTotalCamere();
-
-    cout << "---------------------" << endl;
-
-    // Personal
     Personal p1;
-    Personal p2("Ion Popescu", 30, "Receptioner");
-    Personal p3("Maria");
+    Personal p2("Miruna", 22, "Receptioner");
+    Personal p3 = p2;
 
-    p1.afis();
-    p2.afis();
-    p3.afis();
-    Personal::afisTotalPersonal();
-
-    cout << "---------------------" << endl;
-
-    // Rezervare
     Rezervare r1;
-    Rezervare r2(5, "Andrei Ionescu", 300);
-    Rezervare r3("Elena");
+    Rezervare r2("Delia", 5, 100);
+    Rezervare r3 = r2;
 
-    r1.afis();
-    r2.afis();
-    r3.afis();
-    Rezervare::afisTotalRezervari();
+    c1.afisare();
+    c2.afisare();
+    p2.afisare();
+    r2.afisare();
+
+    // Apelăm funcțiile prietene
+    afisarePretSiVarsta(c2, p2);
+    calculValoareTotala(c2, r2);
+
+    cout << "\nTotal camere: " << Camera::getTotalCamere() << endl;
+    cout << "Total personal: " << Personal::getTotalPersonal() << endl;
+    cout << "Total rezervari: " << Rezervare::getTotalRezervari() << endl;
 
     return 0;
 }
