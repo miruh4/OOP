@@ -41,9 +41,7 @@ public:
     }
 
     // --- Destructor ---
-    ~Camera() {
-        delete[] tip;
-    }
+    ~Camera() { delete[] tip; }
 
     // --- Operator = ---
     Camera& operator=(const Camera& c) {
@@ -64,13 +62,11 @@ public:
     }
 
     // --- Operator < ---
-    bool operator<(const Camera& c) const {
-        return pretNoapte < c.pretNoapte;
-    }
+    bool operator<(const Camera& c) const { return pretNoapte < c.pretNoapte; }
 
     // --- Operator << ---
     friend ostream& operator<<(ostream& out, const Camera& c) {
-        out << "Camera: " << c.tip << ", nr: " << c.nrCamera << ", pret: " << c.pretNoapte << endl;
+        out << "Camera: " << c.tip << ", nr: " << c.nrCamera << ", pret: " << c.pretNoapte;
         return out;
     }
 
@@ -102,12 +98,10 @@ public:
 
     void setNrCamera(int nr) { nrCamera = nr; }
 
-    // --- Funcție statică ---
     static void afisareTotal() {
         cout << "Total camere: " << totalCamere << endl;
     }
 
-    // --- Funcție de afișare ---
     void afisare() const {
         cout << "Camera " << tip << " - Nr: " << nrCamera << " - Pret/noapte: " << pretNoapte << endl;
     }
@@ -124,10 +118,8 @@ private:
     static int totalPersonal;
 
 public:
-    // --- Funcție prietenă ---
     friend void afisarePretSiVarsta(const Camera&, const Personal&);
 
-    // --- Constructori ---
     Personal() : salariu(3000.0) {
         nume = new char[strlen("Anonim")+1];
         strcpy(nume, "Anonim");
@@ -149,12 +141,8 @@ public:
         totalPersonal++;
     }
 
-    // --- Destructor ---
-    ~Personal() {
-        delete[] nume;
-    }
+    ~Personal() { delete[] nume; }
 
-    // --- Operator = ---
     Personal& operator=(const Personal& p) {
         if(this != &p) {
             delete[] nume;
@@ -165,25 +153,19 @@ public:
         return *this;
     }
 
-    // --- Operator + ---
     Personal operator+(int ani) const {
         Personal temp(*this);
         temp.varsta += ani;
         return temp;
     }
 
-    // --- Operator > ---
-    bool operator>(const Personal& p) const {
-        return varsta > p.varsta;
-    }
+    bool operator>(const Personal& p) const { return varsta > p.varsta; }
 
-    // --- Operator << ---
     friend ostream& operator<<(ostream& out, const Personal& p) {
-        out << "Personal: " << p.nume << ", varsta: " << p.varsta << ", salariu: " << p.salariu << endl;
+        out << "Personal: " << p.nume << ", varsta: " << p.varsta << ", salariu: " << p.salariu;
         return out;
     }
 
-    // --- Operator >> ---
     friend istream& operator>>(istream& in, Personal& p) {
         char buffer[100];
         cout << "Nume: ";
@@ -197,7 +179,6 @@ public:
         return in;
     }
 
-    // --- Get/Set ---
     const char* getNume() const { return nume; }
     int getVarsta() const { return varsta; }
     double getSalariu() const { return salariu; }
@@ -231,7 +212,6 @@ private:
     static int totalRezervari;
 
 public:
-    // --- Funcție prietenă ---
     friend double calculValoareTotala(const Camera&, const Rezervare&);
 
     Rezervare() : id(0), nopti(1), taxa(50.0) { totalRezervari++; }
@@ -254,12 +234,10 @@ public:
         return temp;
     }
 
-    bool operator==(const Rezervare& r) const {
-        return id == r.id;
-    }
+    bool operator==(const Rezervare& r) const { return id == r.id; }
 
     friend ostream& operator<<(ostream& out, const Rezervare& r) {
-        out << "Rezervare ID: " << r.id << ", nopti: " << r.nopti << ", taxa: " << r.taxa << endl;
+        out << "Rezervare ID: " << r.id << ", nopti: " << r.nopti << ", taxa: " << r.taxa;
         return out;
     }
 
@@ -290,6 +268,89 @@ public:
 int Rezervare::totalRezervari = 0;
 
 
+// =================== CLASA HOTEL (FAZA 5 - RELAȚIE HAS-A) =====================
+class Hotel {
+private:
+    char nume[100];
+    int nrCamere;
+    int nrAngajati;
+    Camera* camere;
+    Personal* angajati;
+
+public:
+    // --- Constructori ---
+    Hotel() {
+        strcpy(nume, "Anonim");
+        nrCamere = 0;
+        nrAngajati = 0;
+        camere = nullptr;
+        angajati = nullptr;
+    }
+
+    Hotel(const char* n, int nrC, int nrA) {
+        strcpy(nume, n);
+        nrCamere = nrC;
+        nrAngajati = nrA;
+        camere = new Camera[nrCamere];
+        angajati = new Personal[nrAngajati];
+    }
+
+    // --- Constructor copiere ---
+    Hotel(const Hotel& h) {
+        strcpy(nume, h.nume);
+        nrCamere = h.nrCamere;
+        nrAngajati = h.nrAngajati;
+        camere = new Camera[nrCamere];
+        angajati = new Personal[nrAngajati];
+        for(int i=0;i<nrCamere;i++) camere[i] = h.camere[i];
+        for(int i=0;i<nrAngajati;i++) angajati[i] = h.angajati[i];
+    }
+
+    // --- Destructor ---
+    ~Hotel() {
+        delete[] camere;
+        delete[] angajati;
+    }
+
+    // --- Operator = ---
+    Hotel& operator=(const Hotel& h) {
+        if(this != &h) {
+            delete[] camere;
+            delete[] angajati;
+            strcpy(nume, h.nume);
+            nrCamere = h.nrCamere;
+            nrAngajati = h.nrAngajati;
+            camere = new Camera[nrCamere];
+            angajati = new Personal[nrAngajati];
+            for(int i=0;i<nrCamere;i++) camere[i] = h.camere[i];
+            for(int i=0;i<nrAngajati;i++) angajati[i] = h.angajati[i];
+        }
+        return *this;
+    }
+
+    // --- Operator << ---
+    friend ostream& operator<<(ostream& out, const Hotel& h) {
+        out << "Hotel " << h.nume << " are " << h.nrCamere << " camere si " << h.nrAngajati << " angajati.";
+        return out;
+    }
+
+    // --- Metode ---
+    void afisare() const {
+        cout << "Hotel " << nume << " are " << nrCamere << " camere si " << nrAngajati << " angajati." << endl;
+        for(int i=0;i<nrCamere;i++) camere[i].afisare();
+        for(int i=0;i<nrAngajati;i++) angajati[i].afisare();
+    }
+
+    void setCamera(int index, const Camera& c) {
+        if(index >= 0 && index < nrCamere) camere[index] = c;
+    }
+
+    void setAngajat(int index, const Personal& p) {
+        if(index >= 0 && index < nrAngajati) angajati[index] = p;
+    }
+};
+
+
 // =================== FUNCTII GLOBALE PRIETENE =====================
 void afisarePretSiVarsta(const Camera& c, const Personal& p) {
     cout << "Camera " << c.getTip() << " costa " << c.getPret()
@@ -305,67 +366,31 @@ double calculValoareTotala(const Camera& c, const Rezervare& r) {
 // =================== MAIN =====================
 int main() {
 
-    int n;
-    cout << "Cate camere? "; cin >> n;
-    Camera* vCamere = new Camera[n];
-    for(int i=0; i<n; i++) {
-        cout << "--- Camera " << i+1 << " ---" << endl;
-        cin >> vCamere[i];
-    }
-    for(int i=0; i<n; i++) vCamere[i].afisare();
+    // Obiecte test
+    Camera c1("Lux", 101, 250);
+    Personal p1("Miruna", 22, 3500);
+    Rezervare r1(1, 3, 100);
 
-    int m;
-    cout << "Cate persoane? "; cin >> m;
-    Personal* vPers = new Personal[m];
-    for(int i=0; i<m; i++) {
-        cout << "--- Personal " << i+1 << " ---" << endl;
-        cin >> vPers[i];
-    }
-    for(int i=0; i<m; i++) vPers[i].afisare();
+    cout << c1 << endl;
+    cout << p1 << endl;
+    cout << r1 << endl;
 
-    int k;
-    cout << "Cate rezervari? "; cin >> k;
-    Rezervare* vRez = new Rezervare[k];
-    for(int i=0; i<k; i++) {
-        cout << "--- Rezervare " << i+1 << " ---" << endl;
-        cin >> vRez[i];
-    }
-    for(int i=0; i<k; i++) vRez[i].afisare();
+    afisarePretSiVarsta(c1, p1);
+    cout << "Valoare totala: " << calculValoareTotala(c1, r1) << " lei" << endl;
 
-    cout << endl << "=== Functii prietene ===" << endl;
-    if(n > 0 && m > 0)
-        afisarePretSiVarsta(vCamere[0], vPers[0]);
-    if(n > 0 && k > 0)
-        cout << "Valoare totala cazare: " << calculValoareTotala(vCamere[0], vRez[0]) << " lei" << endl;
+    // Vectori de obiecte
+    int n = 2;
+    Camera vCamere[2] = { Camera("Standard", 201, 150), Camera("Deluxe", 202, 200) };
+    Personal vPers[2] = { Personal("Ana", 30, 3200), Personal("Ion", 25, 3100) };
 
-    int rLinii, rColoane;
-    cout << "Introduceti dimensiuni matrice camere (linii coloane): ";
-    cin >> rLinii >> rColoane;
-    Camera** matrice = new Camera*[rLinii];
-    for(int i=0; i<rLinii; i++) matrice[i] = new Camera[rColoane];
+    Hotel h1("Zenezia", 2, 2);
+    h1.setCamera(0, vCamere[0]);
+    h1.setCamera(1, vCamere[1]);
+    h1.setAngajat(0, vPers[0]);
+    h1.setAngajat(1, vPers[1]);
 
-    cout << "Introduceti camere pentru matrice:" << endl;
-    for(int i=0; i<rLinii; i++) {
-        for(int j=0; j<rColoane; j++) {
-            cout << "Camera[" << i << "][" << j << "]" << endl;
-            cin >> matrice[i][j];
-        }
-    }
-
-    cout << "Afisare matrice:" << endl;
-    for(int i=0; i<rLinii; i++) {
-        for(int j=0; j<rColoane; j++) {
-            cout << matrice[i][j] << " ";
-        }
-        cout << endl;
-    }
-
-    for(int i=0; i<rLinii; i++) delete[] matrice[i];
-    delete[] matrice;
-
-    delete[] vCamere;
-    delete[] vPers;
-    delete[] vRez;
+    cout << endl << "=== HOTEL ===" << endl;
+    h1.afisare();
 
     return 0;
 }
