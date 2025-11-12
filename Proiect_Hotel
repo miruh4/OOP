@@ -2,239 +2,370 @@
 #include <cstring>
 using namespace std;
 
-// ========================= CLASA CAMERA =========================
+// =================== CLASA CAMERA =====================
+class Personal;
+class Rezervare;
+
 class Camera {
 private:
-    int numar;
-    float pretNoapte;
     char* tip;
-    const int etaj;
+    int nrCamera;
+    const double pretNoapte;
     static int totalCamere;
 
 public:
-    // Constructori
-    Camera() : etaj(1) {
-        numar = 0;
-        pretNoapte = 0;
-        tip = new char[strlen("Standard") + 1];
+    // --- Funcții prietene ---
+    friend void afisarePretSiVarsta(const Camera&, const Personal&);
+    friend double calculValoareTotala(const Camera&, const Rezervare&);
+
+    // --- Constructori ---
+    Camera() : pretNoapte(100.0) {
+        tip = new char[strlen("Standard")+1];
         strcpy(tip, "Standard");
+        nrCamera = 0;
         totalCamere++;
     }
 
-    Camera(int n, float p, const char* t, int e) : etaj(e) {
-        numar = n;
-        pretNoapte = p;
-        tip = new char[strlen(t) + 1];
+    Camera(const char* t, int nr, double pret) : pretNoapte(pret) {
+        tip = new char[strlen(t)+1];
         strcpy(tip, t);
+        nrCamera = nr;
         totalCamere++;
     }
 
-    Camera(const Camera& c) : etaj(c.etaj) {
-        numar = c.numar;
-        pretNoapte = c.pretNoapte;
-        tip = new char[strlen(c.tip) + 1];
+    Camera(const Camera& c) : pretNoapte(c.pretNoapte) {
+        tip = new char[strlen(c.tip)+1];
         strcpy(tip, c.tip);
+        nrCamera = c.nrCamera;
+        totalCamere++;
     }
 
+    // --- Destructor ---
     ~Camera() {
         delete[] tip;
     }
 
-    // Getteri și setteri
-    int getNumar() const { return numar; }
-    float getPret() const { return pretNoapte; }
-    const char* getTip() const { return tip; }
-    int getEtaj() const { return etaj; }
+    // --- Operator = ---
+    Camera& operator=(const Camera& c) {
+        if(this != &c) {
+            delete[] tip;
+            tip = new char[strlen(c.tip)+1];
+            strcpy(tip, c.tip);
+            nrCamera = c.nrCamera;
+        }
+        return *this;
+    }
 
-    void setNumar(int n) { numar = n; }
-    void setPret(float p) { pretNoapte = p; }
+    // --- Operator + ---
+    Camera operator+(int n) const {
+        Camera temp(*this);
+        temp.nrCamera += n;
+        return temp;
+    }
+
+    // --- Operator < ---
+    bool operator<(const Camera& c) const {
+        return pretNoapte < c.pretNoapte;
+    }
+
+    // --- Operator << ---
+    friend ostream& operator<<(ostream& out, const Camera& c) {
+        out << "Camera: " << c.tip << ", nr: " << c.nrCamera << ", pret: " << c.pretNoapte << endl;
+        return out;
+    }
+
+    // --- Operator >> ---
+    friend istream& operator>>(istream& in, Camera& c) {
+        char buffer[100];
+        cout << "Tip camera: ";
+        in >> ws;
+        in.getline(buffer, 100);
+        delete[] c.tip;
+        c.tip = new char[strlen(buffer)+1];
+        strcpy(c.tip, buffer);
+        cout << "Numar camera: ";
+        in >> c.nrCamera;
+        return in;
+    }
+
+    // --- Get/Set ---
+    const char* getTip() const { return tip; }
+    int getNrCamera() const { return nrCamera; }
+    double getPret() const { return pretNoapte; }
+    static int getTotalCamere() { return totalCamere; }
+
     void setTip(const char* t) {
         delete[] tip;
-        tip = new char[strlen(t) + 1];
+        tip = new char[strlen(t)+1];
         strcpy(tip, t);
     }
 
-    // Funcție statică pentru atribut static
-    static int getTotalCamere() { return totalCamere; }
+    void setNrCamera(int nr) { nrCamera = nr; }
 
-    void afisare() const {
-        cout << "Camera " << numar << ", tip: " << tip << ", pret: "
-             << pretNoapte << " lei/noapte, etaj: " << etaj << endl;
+    // --- Funcție statică ---
+    static void afisareTotal() {
+        cout << "Total camere: " << totalCamere << endl;
     }
 
-    // Declarăm funcțiile prietene
-    friend void afisarePretSiVarsta(Camera c, class Personal p);
-    friend float calculValoareTotala(Camera c, class Rezervare r);
+    // --- Funcție de afișare ---
+    void afisare() const {
+        cout << "Camera " << tip << " - Nr: " << nrCamera << " - Pret/noapte: " << pretNoapte << endl;
+    }
 };
 int Camera::totalCamere = 0;
 
 
-// ========================= CLASA PERSONAL =========================
+// =================== CLASA PERSONAL =====================
 class Personal {
 private:
     char* nume;
     int varsta;
-    const char functie[20];
+    const double salariu;
     static int totalPersonal;
 
 public:
-    // Constructori
-    Personal() : functie("Necunoscut") {
-        nume = new char[strlen("Anonim") + 1];
+    // --- Funcție prietenă ---
+    friend void afisarePretSiVarsta(const Camera&, const Personal&);
+
+    // --- Constructori ---
+    Personal() : salariu(3000.0) {
+        nume = new char[strlen("Anonim")+1];
         strcpy(nume, "Anonim");
         varsta = 0;
         totalPersonal++;
     }
 
-    Personal(const char* n, int v, const char* f) : functie("") {
-        nume = new char[strlen(n) + 1];
+    Personal(const char* n, int v, double s) : salariu(s) {
+        nume = new char[strlen(n)+1];
         strcpy(nume, n);
         varsta = v;
-        strcpy((char*)functie, f);
         totalPersonal++;
     }
 
-    Personal(const Personal& p) : functie("") {
-        nume = new char[strlen(p.nume) + 1];
+    Personal(const Personal& p) : salariu(p.salariu) {
+        nume = new char[strlen(p.nume)+1];
         strcpy(nume, p.nume);
         varsta = p.varsta;
-        strcpy((char*)functie, p.functie);
+        totalPersonal++;
     }
 
+    // --- Destructor ---
     ~Personal() {
         delete[] nume;
     }
 
-    // Getteri și setteri
+    // --- Operator = ---
+    Personal& operator=(const Personal& p) {
+        if(this != &p) {
+            delete[] nume;
+            nume = new char[strlen(p.nume)+1];
+            strcpy(nume, p.nume);
+            varsta = p.varsta;
+        }
+        return *this;
+    }
+
+    // --- Operator + ---
+    Personal operator+(int ani) const {
+        Personal temp(*this);
+        temp.varsta += ani;
+        return temp;
+    }
+
+    // --- Operator > ---
+    bool operator>(const Personal& p) const {
+        return varsta > p.varsta;
+    }
+
+    // --- Operator << ---
+    friend ostream& operator<<(ostream& out, const Personal& p) {
+        out << "Personal: " << p.nume << ", varsta: " << p.varsta << ", salariu: " << p.salariu << endl;
+        return out;
+    }
+
+    // --- Operator >> ---
+    friend istream& operator>>(istream& in, Personal& p) {
+        char buffer[100];
+        cout << "Nume: ";
+        in >> ws;
+        in.getline(buffer, 100);
+        delete[] p.nume;
+        p.nume = new char[strlen(buffer)+1];
+        strcpy(p.nume, buffer);
+        cout << "Varsta: ";
+        in >> p.varsta;
+        return in;
+    }
+
+    // --- Get/Set ---
     const char* getNume() const { return nume; }
     int getVarsta() const { return varsta; }
-    const char* getFunctie() const { return functie; }
+    double getSalariu() const { return salariu; }
+    static int getTotalPersonal() { return totalPersonal; }
 
     void setNume(const char* n) {
         delete[] nume;
-        nume = new char[strlen(n) + 1];
+        nume = new char[strlen(n)+1];
         strcpy(nume, n);
     }
+
     void setVarsta(int v) { varsta = v; }
 
-    // Funcție statică
-    static int getTotalPersonal() { return totalPersonal; }
-
-    void afisare() const {
-        cout << "Angajat: " << nume << ", varsta: " << varsta
-             << ", functie: " << functie << endl;
+    static void afisareTotal() {
+        cout << "Total personal: " << totalPersonal << endl;
     }
 
-    // Prietene
-    friend void afisarePretSiVarsta(Camera c, Personal p);
+    void afisare() const {
+        cout << "Nume: " << nume << ", Varsta: " << varsta << ", Salariu: " << salariu << endl;
+    }
 };
 int Personal::totalPersonal = 0;
 
 
-// ========================= CLASA REZERVARE =========================
+// =================== CLASA REZERVARE =====================
 class Rezervare {
 private:
-    int nrZile;
-    char* numeClient;
-    const float avans;
+    int id;
+    int nopti;
+    const double taxa;
     static int totalRezervari;
 
 public:
-    // Constructori
-    Rezervare() : avans(0) {
-        nrZile = 0;
-        numeClient = new char[strlen("Anonim") + 1];
-        strcpy(numeClient, "Anonim");
-        totalRezervari++;
+    // --- Funcție prietenă ---
+    friend double calculValoareTotala(const Camera&, const Rezervare&);
+
+    Rezervare() : id(0), nopti(1), taxa(50.0) { totalRezervari++; }
+    Rezervare(int i, int n, double t) : id(i), nopti(n), taxa(t) { totalRezervari++; }
+    Rezervare(const Rezervare& r) : id(r.id), nopti(r.nopti), taxa(r.taxa) { totalRezervari++; }
+
+    ~Rezervare() {}
+
+    Rezervare& operator=(const Rezervare& r) {
+        if(this != &r) {
+            id = r.id;
+            nopti = r.nopti;
+        }
+        return *this;
     }
 
-    Rezervare(const char* n, int zile, float a) : avans(a) {
-        numeClient = new char[strlen(n) + 1];
-        strcpy(numeClient, n);
-        nrZile = zile;
-        totalRezervari++;
+    Rezervare operator+(int n) const {
+        Rezervare temp(*this);
+        temp.nopti += n;
+        return temp;
     }
 
-    Rezervare(const Rezervare& r) : avans(r.avans) {
-        nrZile = r.nrZile;
-        numeClient = new char[strlen(r.numeClient) + 1];
-        strcpy(numeClient, r.numeClient);
+    bool operator==(const Rezervare& r) const {
+        return id == r.id;
     }
 
-    ~Rezervare() {
-        delete[] numeClient;
+    friend ostream& operator<<(ostream& out, const Rezervare& r) {
+        out << "Rezervare ID: " << r.id << ", nopti: " << r.nopti << ", taxa: " << r.taxa << endl;
+        return out;
     }
 
-    // Get/set
-    int getZile() const { return nrZile; }
-    const char* getClient() const { return numeClient; }
-    float getAvans() const { return avans; }
-
-    void setZile(int z) { nrZile = z; }
-    void setClient(const char* n) {
-        delete[] numeClient;
-        numeClient = new char[strlen(n) + 1];
-        strcpy(numeClient, n);
+    friend istream& operator>>(istream& in, Rezervare& r) {
+        cout << "ID rezervare: ";
+        in >> r.id;
+        cout << "Numar nopti: ";
+        in >> r.nopti;
+        return in;
     }
 
-    // Funcție statică
+    int getId() const { return id; }
+    int getNopti() const { return nopti; }
+    double getTaxa() const { return taxa; }
     static int getTotalRezervari() { return totalRezervari; }
 
-    void afisare() const {
-        cout << "Rezervare client " << numeClient << " pentru " << nrZile
-             << " zile, avans platit: " << avans << " lei" << endl;
+    void setId(int i) { id = i; }
+    void setNopti(int n) { nopti = n; }
+
+    static void afisareTotal() {
+        cout << "Total rezervari: " << totalRezervari << endl;
     }
 
-    friend float calculValoareTotala(Camera c, Rezervare r);
+    void afisare() const {
+        cout << "Rezervare " << id << " - " << nopti << " nopti - taxa: " << taxa << endl;
+    }
 };
 int Rezervare::totalRezervari = 0;
 
 
-// ========================= FUNCȚII GLOBALE PRIETENE =========================
-
-//Afișează prețul camerei și vârsta angajatului (folosește Camera și Personal)
-void afisarePretSiVarsta(Camera c, Personal p) {
-    cout << "\n[Prietena] Camera " << c.getNumar() << " are pretul "
-         << c.getPret() << " lei/noapte." << endl;
-    cout << "Angajatul " << p.getNume() << " are varsta de " << p.getVarsta() << " ani.\n";
+// =================== FUNCTII GLOBALE PRIETENE =====================
+void afisarePretSiVarsta(const Camera& c, const Personal& p) {
+    cout << "Camera " << c.getTip() << " costa " << c.getPret()
+         << " lei/noapte, iar angajatul " << p.getNume()
+         << " are varsta " << p.getVarsta() << " ani." << endl;
 }
 
-//Calculează valoarea totală a unei rezervări în funcție de prețul camerei
-float calculValoareTotala(Camera c, Rezervare r) {
-    float total = c.getPret() * r.getZile() - r.getAvans();
-    cout << "\n[Prietena] Valoarea totală de plată pentru " << r.getClient()
-         << " este: " << total << " lei.\n";
-    return total;
+double calculValoareTotala(const Camera& c, const Rezervare& r) {
+    return c.getPret() * r.getNopti() + r.getTaxa();
 }
 
 
-// ========================= FUNCTIA MAIN =========================
+// =================== MAIN =====================
 int main() {
 
-    Camera c1;
-    Camera c2(101, 250.5, "Deluxe", 3);
-    Camera c3 = c2;
+    int n;
+    cout << "Cate camere? "; cin >> n;
+    Camera* vCamere = new Camera[n];
+    for(int i=0; i<n; i++) {
+        cout << "--- Camera " << i+1 << " ---" << endl;
+        cin >> vCamere[i];
+    }
+    for(int i=0; i<n; i++) vCamere[i].afisare();
 
-    Personal p1;
-    Personal p2("Miruna", 22, "Receptioner");
-    Personal p3 = p2;
+    int m;
+    cout << "Cate persoane? "; cin >> m;
+    Personal* vPers = new Personal[m];
+    for(int i=0; i<m; i++) {
+        cout << "--- Personal " << i+1 << " ---" << endl;
+        cin >> vPers[i];
+    }
+    for(int i=0; i<m; i++) vPers[i].afisare();
 
-    Rezervare r1;
-    Rezervare r2("Delia", 5, 100);
-    Rezervare r3 = r2;
+    int k;
+    cout << "Cate rezervari? "; cin >> k;
+    Rezervare* vRez = new Rezervare[k];
+    for(int i=0; i<k; i++) {
+        cout << "--- Rezervare " << i+1 << " ---" << endl;
+        cin >> vRez[i];
+    }
+    for(int i=0; i<k; i++) vRez[i].afisare();
 
-    c1.afisare();
-    c2.afisare();
-    p2.afisare();
-    r2.afisare();
+    cout << endl << "=== Functii prietene ===" << endl;
+    if(n > 0 && m > 0)
+        afisarePretSiVarsta(vCamere[0], vPers[0]);
+    if(n > 0 && k > 0)
+        cout << "Valoare totala cazare: " << calculValoareTotala(vCamere[0], vRez[0]) << " lei" << endl;
 
-    // Apelăm funcțiile prietene
-    afisarePretSiVarsta(c2, p2);
-    calculValoareTotala(c2, r2);
+    int rLinii, rColoane;
+    cout << "Introduceti dimensiuni matrice camere (linii coloane): ";
+    cin >> rLinii >> rColoane;
+    Camera** matrice = new Camera*[rLinii];
+    for(int i=0; i<rLinii; i++) matrice[i] = new Camera[rColoane];
 
-    cout << "\nTotal camere: " << Camera::getTotalCamere() << endl;
-    cout << "Total personal: " << Personal::getTotalPersonal() << endl;
-    cout << "Total rezervari: " << Rezervare::getTotalRezervari() << endl;
+    cout << "Introduceti camere pentru matrice:" << endl;
+    for(int i=0; i<rLinii; i++) {
+        for(int j=0; j<rColoane; j++) {
+            cout << "Camera[" << i << "][" << j << "]" << endl;
+            cin >> matrice[i][j];
+        }
+    }
+
+    cout << "Afisare matrice:" << endl;
+    for(int i=0; i<rLinii; i++) {
+        for(int j=0; j<rColoane; j++) {
+            cout << matrice[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    for(int i=0; i<rLinii; i++) delete[] matrice[i];
+    delete[] matrice;
+
+    delete[] vCamere;
+    delete[] vPers;
+    delete[] vRez;
 
     return 0;
 }
